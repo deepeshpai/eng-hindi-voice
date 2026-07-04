@@ -1,5 +1,5 @@
 """
-Pydantic request/response schemas for the Gnani HTTP API.
+Pydantic request/response schemas for the VoiceBot HTTP API.
 
 Keeping schemas separate from route handlers means:
   - routes stay thin (one job: HTTP ↔ service)

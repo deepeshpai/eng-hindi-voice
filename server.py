@@ -1,5 +1,5 @@
 """
-FastAPI HTTP shell for the Gnani translation pipeline.
+FastAPI HTTP shell for the VoiceBot translation pipeline.
 
 This file owns one concern: HTTP.
 All business logic lives in `services.TranslationService`.
@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Gnani Translation API",
+    title="VoiceBot Translation API",
     version="2.0.0",
     description="Real-time English → Hindi translation pipeline (local, open-source).",
     lifespan=lifespan,

@@ -1,14 +1,14 @@
 services:
-  gnani:
+  voicebot:
     build: .
-    image: gnani:latest
+    image: voicebot:latest
     ports:
-      - "${GNANI_PORT:-8000}:8000"
+      - "${VOICEBOT_PORT:-8000}:8000"
 
     volumes:
       # Model cache — shared between host and container so weights are never
       # re-downloaded after the first run.
-      - gnani_models:/models
+      - voicebot_models:/models
 
     environment:
       # Translation / ASR tuning (mirrors .env.example)
@@ -32,4 +32,4 @@ services:
 volumes:
   # Named volume persists across container restarts and rebuilds.
   # First cold-start downloads ~1.5 GB; every subsequent start is instant.
-  gnani_models:
+  voicebot_models:

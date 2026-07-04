@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# setup_and_run.sh — Gnani English → Hindi voice translation  (local dev)
+# setup_and_run.sh — VoiceBot English → Hindi voice translation  (local dev)
 #
 # Recommended: use Docker instead —
 #   docker compose up          # builds image, downloads models, starts server
@@ -65,7 +65,7 @@ cd "$SCRIPT_DIR"
 
 [[ -f "server.py" ]] || die "server.py not found — run this script from the project root."
 
-echo -e "\n${BOLD}Gnani  ·  English → Hindi Voice Translation${NC}"
+echo -e "\n${BOLD}VoiceBot  ·  English → Hindi Voice Translation${NC}"
 echo -e "${BOLD}$(printf '─%.0s' {1..48})${NC}"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -152,7 +152,7 @@ if [[ "$SKIP_MODELS" -eq 1 ]]; then
     warn "Skipping model downloads (--skip-models flag set)."
 else
     step "Pre-downloading ML models (skips files already cached)"
-    info "Models are cached to ~/.cache/huggingface/hub and ~/.local/share/gnani/"
+    info "Models are cached to ~/.cache/huggingface/hub and ~/.local/share/voicebot/"
     info "This runs once — subsequent server starts load from cache instantly."
     echo ""
 
@@ -217,7 +217,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # STEP 7 — Launch the web server
 # ─────────────────────────────────────────────────────────────────────────────
-step "Starting Gnani web server"
+step "Starting VoiceBot web server"
 echo ""
 echo -e "  ${BOLD}URL:${NC}  http://${HOST}:${PORT}"
 echo -e "  ${BOLD}API:${NC}  http://${HOST}:${PORT}/api/status"

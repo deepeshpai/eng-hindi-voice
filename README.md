@@ -1,4 +1,4 @@
-# Gnani — English → Hindi Voice Translation
+# VoiceBot — English → Hindi Voice Translation
 
 Real-time English → Hindi translation in the browser.  
 Speak or type English → get Hindi text + synthesised speech back.  
@@ -18,7 +18,7 @@ cd eng-hindi-voice
 
 Open [http://localhost:8000](http://localhost:8000).
 
-First start builds the image and downloads ~1.5 GB of model weights to a Docker volume (`gnani_models`).  
+First start builds the image and downloads ~1.5 GB of model weights to a Docker volume (`voicebot_models`).  
 Every subsequent start reuses the cache and is ready in under a minute.
 
 ### `docker_run.sh` commands

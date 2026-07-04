@@ -20,7 +20,7 @@ ENV/
 *.env.local
 
 # Models and downloaded data (large — not in source control)
-~/.local/share/gnani/
+~/.local/share/voicebot/
 voices/
 *.onnx
 *.onnx.json

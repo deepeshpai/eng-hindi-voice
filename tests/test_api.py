@@ -321,9 +321,9 @@ class TestStaticFrontend:
         assert r.status_code == 200
         assert "text/html" in r.headers.get("content-type", "")
 
-    def test_index_contains_gnani_title(self, patched_app):
+    def test_index_contains_voicebot_title(self, patched_app):
         client, *_ = patched_app
-        assert "Gnani" in client.get("/").text
+        assert "VoiceBot" in client.get("/").text
 
     def test_404_for_missing_static_file(self, patched_app):
         client, *_ = patched_app

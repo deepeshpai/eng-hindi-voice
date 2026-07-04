@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# docker_run.sh — Build and run Gnani with Docker
+# docker_run.sh — Build and run VoiceBot with Docker
 #
 # Usage:
 #   ./docker_run.sh                 # build (if needed) + run on port 8000
@@ -27,7 +27,7 @@ die()  { echo -e "\n${RED}✗ Error:${NC} $*" >&2; exit 1; }
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 COMPOSE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/docker-compose.yml"
-PROJECT_NAME="gnani"
+PROJECT_NAME="voicebot"
 
 # ── Parse args ────────────────────────────────────────────────────────────────
 PORT=8000
@@ -56,7 +56,7 @@ cd "$(dirname "$COMPOSE_FILE")"
 
 # ── --stop ────────────────────────────────────────────────────────────────────
 if [[ "$CMD" == "stop" ]]; then
-    step "Stopping Gnani containers"
+    step "Stopping VoiceBot containers"
     docker compose -p "$PROJECT_NAME" down
     info "Containers stopped."
     exit 0
@@ -68,11 +68,11 @@ if [[ "$CMD" == "logs" ]]; then
 fi
 
 # ── Build ─────────────────────────────────────────────────────────────────────
-echo -e "\n${BOLD}Gnani  ·  English → Hindi Voice Translation  [Docker]${NC}"
+echo -e "\n${BOLD}VoiceBot  ·  English → Hindi Voice Translation  [Docker]${NC}"
 echo -e "${BOLD}$(printf '─%.0s' {1..52})${NC}"
 
 step "Checking Docker image"
-IMAGE_EXISTS=$(docker images -q gnani:latest 2>/dev/null)
+IMAGE_EXISTS=$(docker images -q voicebot:latest 2>/dev/null)
 
 if [[ -z "$IMAGE_EXISTS" || "$REBUILD" -eq 1 ]]; then
     if [[ "$REBUILD" -eq 1 ]]; then
@@ -83,16 +83,16 @@ if [[ -z "$IMAGE_EXISTS" || "$REBUILD" -eq 1 ]]; then
     fi
     echo ""
     docker compose -p "$PROJECT_NAME" build
-    info "Image built: gnani:latest"
+    info "Image built: voicebot:latest"
 else
-    info "Image gnani:latest already exists. Use --rebuild to force a fresh build."
+    info "Image voicebot:latest already exists. Use --rebuild to force a fresh build."
 fi
 
 # ── Run ───────────────────────────────────────────────────────────────────────
-step "Starting Gnani server"
+step "Starting VoiceBot server"
 
 # Inject the port override into compose via environment variable
-export GNANI_PORT="$PORT"
+export VOICEBOT_PORT="$PORT"
 
 # Bring up (detached) — compose will reuse an existing running container
 # gracefully, so re-running the script is idempotent.
@@ -112,7 +112,7 @@ echo ""
 
 # ── Wait for healthy ──────────────────────────────────────────────────────────
 step "Waiting for server to become ready"
-CONTAINER=$(docker compose -p "$PROJECT_NAME" ps -q gnani 2>/dev/null | head -1)
+CONTAINER=$(docker compose -p "$PROJECT_NAME" ps -q voicebot 2>/dev/null | head -1)
 
 if [[ -z "$CONTAINER" ]]; then
     warn "Could not find container — check 'docker compose ps' manually."

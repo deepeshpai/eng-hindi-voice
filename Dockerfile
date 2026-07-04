@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Gnani — English → Hindi Voice Translation
+# VoiceBot — English → Hindi Voice Translation
 #
 # Build:  docker compose up --build
 # Run:    docker compose up
@@ -9,7 +9,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim
 
-LABEL org.opencontainers.image.title="Gnani — English → Hindi Voice Translation"
+LABEL org.opencontainers.image.title="VoiceBot — English → Hindi Voice Translation"
 
 # ── System dependencies ───────────────────────────────────────────────────────
 # build-essential  — compile native wheels (sentencepiece, webrtcvad, etc.)
@@ -50,7 +50,7 @@ COPY . .
 
 # ── Runtime environment ───────────────────────────────────────────────────────
 # ML model weights live on a mounted volume — never baked into the image.
-# docker-compose.yml mounts gnani_models → /models.
+# docker-compose.yml mounts voicebot_models → /models.
 ENV HF_HOME=/models/huggingface \
     TRANSFORMERS_CACHE=/models/huggingface/hub \
     PIPER_VOICES_DIR=/models/piper \
@@ -58,8 +58,8 @@ ENV HF_HOME=/models/huggingface \
     PYTHONDONTWRITEBYTECODE=1
 
 # ── Security ──────────────────────────────────────────────────────────────────
-RUN useradd -m -u 1000 gnani && chown -R gnani /app
-USER gnani
+RUN useradd -m -u 1000 voicebot && chown -R voicebot /app
+USER voicebot
 
 EXPOSE 8000
 

@@ -25,7 +25,7 @@ Two detection mechanisms (applied in priority order)
 Placeholder design
 ------------------
 Sentinels are purely alphabetic ("Nentityzero", "Nentityone") — NOT
-digit-bearing ("GNANI0").  NMT models transliterate digit tokens into
+digit-bearing ("VBOT0").  NMT models transliterate digit tokens into
 Devanagari, breaking the literal restore.  All-letter tokens survive
 the round-trip reliably.
 

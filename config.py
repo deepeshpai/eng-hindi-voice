@@ -135,7 +135,7 @@ class TTSConfig:
     voices_dir: Path = field(
         default_factory=lambda: (
             Path(_env("PIPER_VOICES_DIR", "")) if _env("PIPER_VOICES_DIR", "")
-            else Path.home() / ".local" / "share" / "gnani" / "voices"
+            else Path.home() / ".local" / "share" / "voicebot" / "voices"
         )
     )
     # Speaking rate multiplier (1.0 = normal speed)

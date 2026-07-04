@@ -1,5 +1,5 @@
 """
-Shared fixtures and pytest configuration for the Gnani test suite.
+Shared fixtures and pytest configuration for the VoiceBot test suite.
 """
 from __future__ import annotations
 
