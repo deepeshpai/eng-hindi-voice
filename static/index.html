@@ -210,22 +210,23 @@
       background: var(--surface2);
       border: 1px solid var(--border);
       color: var(--text);
-      width: 40px;
+      padding: 0 16px;
       height: 40px;
-      padding: 0;
-      border-radius: 50%;
+      border-radius: var(--radius);
       flex-shrink: 0;
-      font-size: 18px;
+      font-size: 14px;
+      gap: 6px;
     }
     .btn-mic.recording {
       background: var(--red);
       border-color: var(--red);
+      color: #fff;
       animation: rec-pulse 1s ease-in-out infinite;
     }
 
     @keyframes rec-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(248,81,73,.6); }
-      50%       { box-shadow: 0 0 0 8px rgba(248,81,73,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,.5); }
+      50%       { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
     }
 
     /* ── Output text ──────────────────────────────────────────────── */
@@ -330,12 +331,14 @@
         <div class="char-count"><span id="charCount">0</span> chars</div>
       </div>
 
-      <!-- Mic + Translate -->
+      <!-- Mic status (shown while recording) -->
+      <div id="micStatus" class="mic-transcript"></div>
+
+      <!-- Actions -->
       <div class="btn-row">
-        <button class="btn btn-mic" id="micBtn" title="Click to record">🎤</button>
-        <div id="micStatus" class="mic-transcript"></div>
-        <div class="header-spacer"></div>
         <button class="btn btn-ghost" id="clearBtn">Clear</button>
+        <div class="header-spacer"></div>
+        <button class="btn btn-mic" id="micBtn" title="Click to record">🎤 Record</button>
         <button class="btn btn-primary" id="translateBtn">
           <span>Translate</span>
           <span>→</span>
@@ -523,7 +526,7 @@ async function startRecording() {
     mediaRecorder.start();
     isRecording = true;
     micBtn.classList.add('recording');
-    micBtn.textContent = '⏹';
+    micBtn.textContent = '⏹ Stop';
     micStatus.textContent = 'Recording…';
   } catch (err) {
     showError(`Microphone: ${err.message}`);
@@ -534,7 +537,7 @@ function stopRecording() {
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   isRecording = false;
   micBtn.classList.remove('recording');
-  micBtn.textContent = '🎤';
+  micBtn.textContent = '🎤 Record';
   micStatus.textContent = 'Transcribing…';
 }
 
