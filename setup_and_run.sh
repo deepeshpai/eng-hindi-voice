@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# setup_and_run.sh — Gnani English → Hindi voice translation
+# setup_and_run.sh — Gnani English → Hindi voice translation  (local dev)
 #
-# What this script does (in order):
+# Recommended: use Docker instead —
+#   docker compose up          # builds image, downloads models, starts server
+#
+# This script is for local development without Docker. It:
 #   1. Installs uv (if not already present)
-#   2. Creates a Python 3.11 virtual environment via uv
+#   2. Creates a virtual environment via uv
 #   3. Installs all project dependencies from pyproject.toml
 #   4. Downloads the spaCy English NER model (en_core_web_sm)
 #   5. Copies .env.example → .env if no .env exists
@@ -113,7 +116,7 @@ step "Installing Python dependencies"
 info "This downloads PyTorch, transformers, faster-whisper, piper-tts…"
 info "(First run: ~5–15 min depending on bandwidth; subsequent runs: seconds)"
 
-uv pip install -e ".[dev]"
+uv pip install -e ".[dev]" --no-build-isolation
 info "All Python packages installed."
 
 # ─────────────────────────────────────────────────────────────────────────────

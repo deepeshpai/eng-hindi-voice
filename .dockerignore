@@ -1,0 +1,48 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+
+# Test / CI artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local secrets and config
+.env
+*.local
+
+# Model weight files (fetched at runtime via the mounted volume)
+*.onnx
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Git
+.git/
+.gitattributes
+
+# Docker itself
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Docs / scripts not needed inside the image
+*.md
+setup_and_run.sh

@@ -1,0 +1,35 @@
+services:
+  gnani:
+    build: .
+    image: gnani:latest
+    ports:
+      - "8000:8000"
+
+    volumes:
+      # Model cache — shared between host and container so weights are never
+      # re-downloaded after the first run.
+      - gnani_models:/models
+
+    environment:
+      # Translation / ASR tuning (mirrors .env.example)
+      - WHISPER_MODEL=base.en
+      - WHISPER_DEVICE=cpu
+      - TRANSLATION_BACKEND=nllb
+      - TRANSLATION_DEVICE=cpu
+      - HINDI_TONE=auto
+      - PIPER_VOICE=hi_IN-rohan-medium
+
+      # Point both HF and piper at the mounted volume
+      - HF_HOME=/models/huggingface
+      - TRANSFORMERS_CACHE=/models/huggingface/hub
+      - PIPER_VOICES_DIR=/models/piper
+
+    restart: unless-stopped
+
+    # Show model-loading progress without buffering
+    tty: true
+
+volumes:
+  # Named volume persists across container restarts and rebuilds.
+  # First cold-start downloads ~1.5 GB; every subsequent start is instant.
+  gnani_models:

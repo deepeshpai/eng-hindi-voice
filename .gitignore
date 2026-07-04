@@ -46,3 +46,6 @@ chainlit.md
 
 # Cursor
 .claude/
+
+# Docker
+.docker/

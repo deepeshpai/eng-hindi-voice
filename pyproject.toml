@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "gnani"
@@ -66,6 +66,9 @@ markers     = [
     "slow: end-to-end tests that load real model weights",
     "integration: tests that require a running server",
 ]
+
+[tool.setuptools.packages.find]
+include = ["pipeline*", "utils*"]
 
 [tool.ruff]
 line-length = 100
