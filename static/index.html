@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gnani — English → Hindi</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2128;
+      --border:   #30363d;
+      --accent:   #8b5cf6;
+      --accent2:  #3b82f6;
+      --green:    #3fb950;
+      --red:      #f85149;
+      --orange:   #e3a008;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --radius:   12px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .app {
+      display: grid;
+      grid-template-rows: 56px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: -6px;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 4px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .status-dot.ready { background: var(--green); animation: none; }
+    .status-dot.error { background: var(--red);   animation: none; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── Main grid ────────────────────────────────────────────────── */
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    /* ── Panels ───────────────────────────────────────────────────── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .panel-left  { border-right: 1px solid var(--border); }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Card ─────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    /* ── Textarea ─────────────────────────────────────────────────── */
+    .input-area {
+      width: 100%;
+      min-height: 160px;
+      max-height: 260px;
+      resize: vertical;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      line-height: 1.7;
+    }
+
+    .input-area::placeholder { color: var(--muted); }
+
+    /* ── Char count ───────────────────────────────────────────────── */
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Button row ───────────────────────────────────────────────── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+
+    .btn-ghost {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+    .btn-mic {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+    .btn-mic.recording {
+      background: var(--red);
+      border-color: var(--red);
+      animation: rec-pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes rec-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(248,81,73,.6); }
+      50%       { box-shadow: 0 0 0 8px rgba(248,81,73,0); }
+    }
+
+    /* ── Settings grid ────────────────────────────────────────────── */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .setting-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .setting-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+
+    .setting-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 8px 10px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .setting-select:hover { border-color: var(--accent); }
+
+    /* ── Output text ──────────────────────────────────────────────── */
+    .hindi-output {
+      font-size: 22px;
+      line-height: 1.7;
+      color: var(--text);
+      min-height: 80px;
+      font-family: "Noto Sans Devanagari", "Mangal", sans-serif;
+    }
+
+    .hindi-placeholder {
+      color: var(--muted);
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    /* ── Audio player ─────────────────────────────────────────────── */
+    audio {
+      width: 100%;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    /* filter for dark-mode compatible player */
+    audio::-webkit-media-controls-panel { background: var(--surface2); }
+
+    /* ── Pipeline steps ───────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 6px; }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    .step.done    { border-color: var(--green); }
+    .step.running { border-color: var(--accent); }
+    .step.error   { border-color: var(--red); }
+
+    .step-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      background: var(--border);
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .step.done    .step-icon { background: var(--green); color: #fff; }
+    .step.running .step-icon { background: var(--accent); color: #fff; }
+    .step.error   .step-icon { background: var(--red);   color: #fff; }
+
+    .step-name { font-weight: 500; flex: 1; }
+    .step-detail { color: var(--muted); font-size: 12px; }
+    .step-ms {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--bg);
+      border-radius: 4px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+    .step.done .step-ms { color: var(--green); border-color: var(--green); }
+
+    /* ── Spinner ──────────────────────────────────────────────────── */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Stats bar ────────────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+      padding-top: 4px;
+    }
+
+    .stat { display: flex; gap: 4px; align-items: center; }
+    .stat-val { color: var(--text); font-weight: 600; }
+
+    /* ── Error box ────────────────────────────────────────────────── */
+    .error-box {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid var(--red);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--red);
+    }
+
+    /* ── Mic transcript ───────────────────────────────────────────── */
+    .mic-transcript {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Scrollbar ────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+      .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎙</div>
+      <span>Gnani</span>
+      <span class="logo-sub">en → hi</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="status-badge">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Loading models…</span>
+    </div>
+  </header>
+
+  <!-- ── Main ────────────────────────────────────────────────────── -->
+  <main>
+
+    <!-- ── Left: Input panel ─────────────────────────────────────── -->
+    <div class="panel panel-left">
+      <div class="panel-title">English Input</div>
+
+      <!-- Text input -->
+      <div class="card">
+        <textarea
+          id="inputText"
+          class="input-area"
+          placeholder="Type English text here, or record your voice…"
+          spellcheck="true"
+          autocomplete="off"
+        ></textarea>
+        <div class="char-count"><span id="charCount">0</span> chars</div>
+      </div>
+
+      <!-- Mic + Translate -->
+      <div class="btn-row">
+        <button class="btn btn-mic" id="micBtn" title="Hold to record">🎤</button>
+        <div id="micStatus" class="mic-transcript"></div>
+        <div class="header-spacer"></div>
+        <button class="btn btn-ghost" id="clearBtn">Clear</button>
+        <button class="btn btn-primary" id="translateBtn">
+          <span>Translate</span>
+          <span>→</span>
+        </button>
+      </div>
+
+      <!-- Settings -->
+      <div class="card">
+        <div class="panel-title" style="margin-bottom:12px">Settings</div>
+        <div class="settings-grid">
+          <div class="setting-group">
+            <label class="setting-label" for="backendSel">Model</label>
+            <select class="setting-select" id="backendSel">
+              <option value="nllb">NLLB-200 (better)</option>
+              <option value="opus">opus-mt (faster)</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label" for="toneSel">Register</label>
+            <select class="setting-select" id="toneSel">
+              <option value="auto">Auto-detect</option>
+              <option value="formal">Formal (आप)</option>
+              <option value="casual">Casual (तुम)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example sentences -->
+      <div>
+        <div class="panel-title" style="margin-bottom:10px">Examples</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
+            Can we move the Google Meet to 5 PM tomorrow?
+          </button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
+            Please share the ETA for the Asterisk SIP trunk deployment.
+          </button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
+            Hey, wanna grab lunch before the 2 PM standup?
+          </button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
+            The deadline is ASAP — can you please update the Jira ticket?
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right: Output panel ───────────────────────────────────── -->
+    <div class="panel panel-right">
+      <div class="panel-title">Hindi Output</div>
+
+      <!-- Hindi text -->
+      <div class="card" id="hindiCard">
+        <div class="hindi-output" id="hindiText">
+          <span class="hindi-placeholder">Translation will appear here…</span>
+        </div>
+      </div>
+
+      <!-- Audio player (hidden until audio is ready) -->
+      <div class="card" id="audioCard" style="display:none">
+        <div class="panel-title" style="margin-bottom:10px">Audio Playback</div>
+        <audio id="audioPlayer" controls></audio>
+      </div>
+
+      <!-- Pipeline steps -->
+      <div>
+        <div class="panel-title" style="margin-bottom:10px">Pipeline Steps</div>
+        <div class="steps" id="steps">
+          <div class="step" id="step-buffer">
+            <div class="step-icon">1</div>
+            <div class="step-name">Smart Buffer</div>
+            <div class="step-detail" id="bufferDetail">—</div>
+          </div>
+          <div class="step" id="step-translate">
+            <div class="step-icon">2</div>
+            <div class="step-name">Translation</div>
+            <div class="step-detail" id="translateDetail">—</div>
+          </div>
+          <div class="step" id="step-tts">
+            <div class="step-icon">3</div>
+            <div class="step-name">Hindi TTS</div>
+            <div class="step-detail" id="ttsDetail">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="stats-bar" id="statsBar" style="display:none">
+        <div class="stat">Backend: <span class="stat-val" id="statBackend">—</span></div>
+        <div class="stat">Translate: <span class="stat-val" id="statTrans">—</span></div>
+        <div class="stat">TTS: <span class="stat-val" id="statTts">—</span></div>
+        <div class="stat">Total: <span class="stat-val" id="statTotal">—</span></div>
+        <div class="stat">Register: <span class="stat-val" id="statTone">—</span></div>
+      </div>
+
+      <!-- Error display -->
+      <div class="error-box" id="errorBox" style="display:none"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Safely extract an error detail from a failed fetch response.
+ * Falls back to plain text then statusText so we never crash on non-JSON bodies.
+ */
+async function _extractError(resp) {
+  try {
+    const data = await resp.clone().json();
+    return data.detail || data.message || resp.statusText;
+  } catch {
+    try {
+      const txt = await resp.text();
+      // Truncate raw HTML/stack traces to something readable
+      return txt.slice(0, 200).replace(/<[^>]+>/g, '').trim() || resp.statusText;
+    } catch {
+      return `HTTP ${resp.status}`;
+    }
+  }
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let modelsReady = false;
+let isTranslating = false;
+let mediaRecorder = null;
+let recordingChunks = [];
+let isRecording = false;
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+
+const inputText     = document.getElementById('inputText');
+const charCount     = document.getElementById('charCount');
+const translateBtn  = document.getElementById('translateBtn');
+const clearBtn      = document.getElementById('clearBtn');
+const micBtn        = document.getElementById('micBtn');
+const micStatus     = document.getElementById('micStatus');
+const backendSel    = document.getElementById('backendSel');
+const toneSel       = document.getElementById('toneSel');
+const hindiText     = document.getElementById('hindiText');
+const audioCard     = document.getElementById('audioCard');
+const audioPlayer   = document.getElementById('audioPlayer');
+const errorBox      = document.getElementById('errorBox');
+const statsBar      = document.getElementById('statsBar');
+const statusDot     = document.getElementById('statusDot');
+const statusText    = document.getElementById('statusText');
+
+// ── Status polling ────────────────────────────────────────────────────────────
+
+async function checkStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const data = await r.json();
+    modelsReady = data.ready;
+
+    if (data.ready) {
+      statusDot.className = 'status-dot ready';
+      const backends = data.backends.join(' + ');
+      statusText.textContent = `Ready — ${backends}`;
+
+      // Populate backend selector with actual available backends
+      backendSel.innerHTML = '';
+      data.backends.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b === 'nllb' ? 'NLLB-200 (better)' : 'opus-mt (faster)';
+        backendSel.appendChild(opt);
+      });
+      // Default to nllb if available
+      if (data.backends.includes('nllb')) backendSel.value = 'nllb';
+
+    } else {
+      statusDot.className = 'status-dot';
+      statusText.textContent = 'Loading models…';
+      setTimeout(checkStatus, 2000);
+    }
+  } catch {
+    statusDot.className = 'status-dot error';
+    statusText.textContent = 'Server unavailable';
+    setTimeout(checkStatus, 3000);
+  }
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+
+function setStepState(id, state, detail, ms) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `step ${state}`;
+  const icon = el.querySelector('.step-icon');
+  if (state === 'done')    icon.textContent = '✓';
+  else if (state === 'running') icon.innerHTML = '<div class="spinner"></div>';
+  else if (state === 'error')   icon.textContent = '✕';
+
+  // Remove old ms badge
+  const oldMs = el.querySelector('.step-ms');
+  if (oldMs) oldMs.remove();
+
+  const detailEl = el.querySelector('.step-detail');
+  if (detailEl && detail !== undefined) detailEl.textContent = detail;
+
+  if (ms !== undefined && state === 'done') {
+    const badge = document.createElement('div');
+    badge.className = 'step-ms';
+    badge.textContent = `${ms} ms`;
+    el.appendChild(badge);
+  }
+}
+
+function resetSteps() {
+  ['step-buffer','step-translate','step-tts'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'step';
+    el.querySelector('.step-icon').textContent = String(i + 1);
+    const detailEl = el.querySelector('[id$="Detail"]');
+    if (detailEl) detailEl.textContent = '—';
+    const ms = el.querySelector('.step-ms');
+    if (ms) ms.remove();
+  });
+}
+
+function showError(msg) {
+  errorBox.textContent = `Error: ${msg}`;
+  errorBox.style.display = 'block';
+}
+
+function clearError() {
+  errorBox.style.display = 'none';
+  errorBox.textContent = '';
+}
+
+// ── Translation ───────────────────────────────────────────────────────────────
+
+async function runTranslation(text) {
+  if (!modelsReady) { showError('Models are still loading, please wait…'); return; }
+  if (!text.trim()) { showError('Please enter some English text first.'); return; }
+  if (isTranslating) return;
+
+  isTranslating = true;
+  clearError();
+  resetSteps();
+  hindiText.innerHTML = '<span class="hindi-placeholder">Translating…</span>';
+  audioCard.style.display = 'none';
+  statsBar.style.display = 'none';
+  translateBtn.disabled = true;
+
+  const backend = backendSel.value;
+  const tone    = toneSel.value;
+
+  // Show Smart Buffer step running
+  setStepState('step-buffer', 'running', 'Removing fillers…');
+
+  try {
+    const resp = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, backend, tone }),
+    });
+
+    if (!resp.ok) {
+      throw new Error(await _extractError(resp));
+    }
+
+    const d = await resp.json();
+
+    // Update steps
+    const bufferDetail = d.cleaned !== d.english
+      ? `"${d.cleaned.slice(0, 60)}${d.cleaned.length > 60 ? '…' : ''}"`
+      : 'No fillers detected';
+    setStepState('step-buffer',    'done', bufferDetail);
+    setStepState('step-translate', 'done', d.hindi.slice(0, 50) + (d.hindi.length > 50 ? '…' : ''), d.trans_ms);
+    setStepState('step-tts',       'done', `${(d.sample_rate ? (d.audio_b64.length * 3/4 / 2 / d.sample_rate).toFixed(2) : '?')}s audio`, d.tts_ms);
+
+    // Hindi output
+    hindiText.innerHTML = '';
+    hindiText.textContent = d.hindi;
+
+    // Audio playback
+    const wavBlob = b64ToBlob(d.audio_b64, 'audio/wav');
+    const url = URL.createObjectURL(wavBlob);
+    audioPlayer.src = url;
+    audioCard.style.display = 'block';
+    audioPlayer.play().catch(() => {});  // autoplay may be blocked
+
+    // Stats
+    document.getElementById('statBackend').textContent = d.backend;
+    document.getElementById('statTrans').textContent   = `${d.trans_ms} ms`;
+    document.getElementById('statTts').textContent     = `${d.tts_ms} ms`;
+    document.getElementById('statTotal').textContent   = `${d.total_ms} ms`;
+    document.getElementById('statTone').textContent    = d.tone;
+    statsBar.style.display = 'flex';
+
+  } catch (err) {
+    setStepState('step-buffer', 'error', '');
+    showError(err.message || String(err));
+    hindiText.innerHTML = '<span class="hindi-placeholder">Translation failed.</span>';
+  } finally {
+    isTranslating = false;
+    translateBtn.disabled = false;
+  }
+}
+
+function b64ToBlob(b64, mime) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+// ── Microphone recording ──────────────────────────────────────────────────────
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordingChunks = [];
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordingChunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(recordingChunks, { type: 'audio/webm' });
+      await transcribeAndFill(blob);
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    micBtn.classList.add('recording');
+    micBtn.textContent = '⏹';
+    micStatus.textContent = 'Recording…';
+  } catch (err) {
+    showError(`Microphone: ${err.message}`);
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  isRecording = false;
+  micBtn.classList.remove('recording');
+  micBtn.textContent = '🎤';
+  micStatus.textContent = 'Transcribing…';
+}
+
+async function transcribeAndFill(audioBlob) {
+  try {
+    const form = new FormData();
+    form.append('file', audioBlob, 'recording.webm');
+    const resp = await fetch('/api/asr', { method: 'POST', body: form });
+    if (!resp.ok) throw new Error(await _extractError(resp));
+    const { english } = await resp.json();
+    if (english.trim()) {
+      inputText.value = english;
+      updateCharCount();
+      micStatus.textContent = `Transcribed: "${english}"`;
+      await runTranslation(english);
+    } else {
+      micStatus.textContent = 'Could not transcribe audio.';
+    }
+  } catch (err) {
+    micStatus.textContent = '';
+    showError(`ASR: ${err.message}`);
+  }
+}
+
+// ── Event listeners ───────────────────────────────────────────────────────────
+
+micBtn.addEventListener('click', () => {
+  if (isRecording) stopRecording();
+  else startRecording();
+});
+
+translateBtn.addEventListener('click', () => runTranslation(inputText.value));
+
+clearBtn.addEventListener('click', () => {
+  inputText.value = '';
+  updateCharCount();
+  hindiText.innerHTML = '<span class="hindi-placeholder">Translation will appear here…</span>';
+  audioCard.style.display = 'none';
+  statsBar.style.display = 'none';
+  clearError();
+  resetSteps();
+  micStatus.textContent = '';
+});
+
+inputText.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runTranslation(inputText.value);
+});
+
+inputText.addEventListener('input', updateCharCount);
+
+function updateCharCount() {
+  charCount.textContent = inputText.value.length;
+}
+
+function setExample(btn) {
+  inputText.value = btn.textContent.trim();
+  updateCharCount();
+  inputText.focus();
+}
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
+
+checkStatus();
+</script>
+</body>
+</html>

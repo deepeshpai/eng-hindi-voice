@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "gnani"
+version = "2.0.0"
+description = "Real-time English → Hindi voice translation pipeline (local, open-source)"
+requires-python = ">=3.10"
+
+dependencies = [
+    # ── Core audio I/O ─────────────────────────────────────────────────────
+    "sounddevice>=0.4.6",
+    "webrtcvad>=2.0.10",
+    "numpy>=1.24.0",
+
+    # ── ASR ────────────────────────────────────────────────────────────────
+    "faster-whisper>=1.0.0",
+
+    # ── Translation (HuggingFace, fully local) ─────────────────────────────
+    "transformers>=4.40.0",
+    "sentencepiece>=0.1.99",   # NLLB-200 tokenizer
+    "sacremoses>=0.1.1",       # MarianMT tokenizer
+    "torch>=2.0.0",
+
+    # ── Named-entity protection ────────────────────────────────────────────
+    "spacy>=3.7.0",
+
+    # ── TTS ────────────────────────────────────────────────────────────────
+    "piper-tts>=1.2.0",
+    "onnxruntime>=1.17.0",
+
+    # ── Web server ─────────────────────────────────────────────────────────
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
+    "python-multipart>=0.0.9",
+
+    # ── Audio decoding (browser WebM/Opus → PCM, no system ffmpeg needed) ─
+    "av>=12.0.0",
+
+    # ── Model downloads ────────────────────────────────────────────────────
+    "huggingface_hub>=0.20.0",
+    "requests>=2.31.0",
+    "tqdm>=4.66.0",
+
+    # ── Utilities ──────────────────────────────────────────────────────────
+    "python-dotenv>=1.0.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",           # FastAPI TestClient
+]
+spacy-transformers = [
+    "spacy-transformers>=1.3.0",
+]
+
+[project.scripts]
+gnani      = "main:main"
+gnani-web  = "server:app"
+
+[tool.pytest.ini_options]
+testpaths   = ["tests"]
+asyncio_mode = "auto"
+addopts     = "-v --tb=short -m 'not slow'"
+markers     = [
+    "slow: end-to-end tests that load real model weights",
+    "integration: tests that require a running server",
+]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true

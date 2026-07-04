@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment / secrets
+.env
+*.env.local
+
+# Models and downloaded data (large — not in source control)
+~/.local/share/gnani/
+voices/
+*.onnx
+*.onnx.json
+
+# Test / coverage artefacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.xml
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Chainlit (legacy — not used)
+.chainlit/
+chainlit.md
+
+# Cursor
+.claude/

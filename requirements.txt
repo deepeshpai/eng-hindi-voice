@@ -1,0 +1,43 @@
+# ─── Audio I/O ────────────────────────────────────────────────────────────────
+sounddevice>=0.4.6
+webrtcvad>=2.0.10
+numpy>=1.24.0
+
+# ─── ASR — faster-whisper (runs entirely locally, no API key) ────────────────
+faster-whisper>=1.0.0
+
+# ─── Translation — HuggingFace Transformers (fully local, no API key) ────────
+# Core
+transformers>=4.40.0
+# MarianMT tokenizer (Helsinki-NLP/opus-mt-en-hi)
+sacremoses>=0.1.1
+# NLLB-200 tokenizer (facebook/nllb-200-distilled-600M)
+sentencepiece>=0.1.99
+# Local NER for named-entity protection — masks arbitrary proper nouns
+# (people, places, orgs, products) so the MT model doesn't translate them.
+# The model is fetched separately:  python -m spacy download en_core_web_trf
+spacy>=3.7.0
+spacy-transformers>=1.3.0
+# PyTorch inference backend (CPU-only wheel saves ~1 GB vs full CUDA build)
+# To install CPU-only: pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+# Faster batched inference on top of CTranslate2 (optional, improves speed)
+# ctranslate2>=4.0.0
+
+# ─── TTS — piper-tts (local neural TTS, no internet after model download) ────
+piper-tts>=1.2.0
+# ONNX Runtime — inference backend for piper
+onnxruntime>=1.17.0
+
+# ─── Utilities ────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+rich>=13.7.0
+# For downloading piper voice models on first run
+requests>=2.31.0
+tqdm>=4.66.0
+
+# ─── Web UI — FastAPI + Uvicorn (replaces Chainlit) ─────────────────────────
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+python-multipart>=0.0.9   # file uploads for /api/asr
+huggingface_hub>=0.20.0   # model downloads
