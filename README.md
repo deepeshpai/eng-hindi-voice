@@ -13,13 +13,26 @@ Everything runs **100% locally** — no API keys, nothing leaves your machine.
 ```bash
 git clone <repo-url>
 cd eng-hindi-voice
-docker compose up
+./docker_run.sh
 ```
 
 Open [http://localhost:8000](http://localhost:8000).
 
-First start downloads ~1.5 GB of model weights to a Docker volume (`gnani_models`).  
-Every subsequent start loads from cache and is ready in under a minute.
+First start builds the image and downloads ~1.5 GB of model weights to a Docker volume (`gnani_models`).  
+Every subsequent start reuses the cache and is ready in under a minute.
+
+### `docker_run.sh` commands
+
+| Command | What it does |
+|---|---|
+| `./docker_run.sh` | Build image (if needed) + start server on port 8000 |
+| `./docker_run.sh --port 9000` | Start on a custom port |
+| `./docker_run.sh --rebuild` | Force a fresh image rebuild (e.g. after code changes) |
+| `./docker_run.sh --logs` | Tail live server logs (shows model loading progress) |
+| `./docker_run.sh --stop` | Stop and remove the running container |
+
+The script polls the health endpoint and prints dots until the server is ready, then shows the URL.  
+Model weights are cached in a named Docker volume — they survive container restarts and rebuilds.
 
 ---
 
