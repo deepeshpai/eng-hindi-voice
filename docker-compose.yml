@@ -3,7 +3,7 @@ services:
     build: .
     image: gnani:latest
     ports:
-      - "8000:8000"
+      - "${GNANI_PORT:-8000}:8000"
 
     volumes:
       # Model cache — shared between host and container so weights are never

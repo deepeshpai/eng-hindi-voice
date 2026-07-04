@@ -53,21 +53,7 @@ Copy `.env.example` to `.env` and adjust as needed:
 | `HINDI_TONE` | `auto` | `formal`, `casual`, or `auto` |
 | `ASR_HOTWORDS` | *(see .env.example)* | Comma-separated terms protected from mistranslation |
 
----
 
-## Edge cases handled
-
-| Problem | Solution |
-|---|---|
-| Strong accents / fast speech | Confidence filtering + temperature fallback in Whisper |
-| Named entity mistranslation | spaCy NER + custom hotword registry → placeholder round-trip |
-| Partial inputs / fillers | Two-tier filler removal; sentence-boundary detection |
-| Latency buildup | Queue backpressure; interruption cancellation |
-| Tone drift | Session-level tone memory in SmartBuffer |
-| Numbers / dates / currency | Preprocessing: ordinals, date normalization, currency expansion |
-| Abbreviations | Expansion table (ETA, PM, SIP, VoIP, …) |
-
----
 
 ## Project layout
 
