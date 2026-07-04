@@ -4,14 +4,13 @@ Stage 4 — English → Hindi Translation (fully local, no API key).
 This module is responsible for one thing: running the MT model.
 Pre-processing (abbreviation expansion, time expressions) lives in
 `pipeline.preprocessing`; named-entity protection lives in
-`pipeline.entity_guard`; tone adjustment lives in `pipeline.smart_buffer`.
+`pipeline.entity_guard`; tone adjustment lives here via `apply_tone`.
 
-Backends
---------
-nllb  — facebook/nllb-200-distilled-600M  (~1.2 GB)
-        Best quality; handles slang, technical text, mixed register.
-opus  — Helsinki-NLP/opus-mt-en-hi         (~300 MB)
-        Fastest on CPU; lower quality on complex sentences.
+Backend
+-------
+NLLB-200 — facebook/nllb-200-distilled-600M (~1.2 GB)
+    Best quality; handles slang, technical text, and mixed register.
+    Supports entity-guard round-trip (opaque placeholder tokens survive).
 """
 from __future__ import annotations
 
@@ -52,7 +51,7 @@ def apply_tone(hindi: str, tone: str) -> str:
 
 class Translator:
     """
-    Translates English → Hindi using a local HuggingFace model.
+    Translates English → Hindi using NLLB-200 locally.
 
     Thread-safe: inference runs in a dedicated single-thread executor so it
     never blocks the asyncio event loop.
@@ -76,7 +75,8 @@ class Translator:
         except ImportError:
             return "cpu"
 
-    def _load_nllb(self) -> None:
+    def initialize(self) -> None:
+        """Load NLLB-200 (blocking). Call once before serving requests."""
         from transformers import AutoModelForSeq2SeqLM, AutoTokenizer  # type: ignore
 
         mid = self._cfg.NLLB_MODEL_ID
@@ -85,23 +85,6 @@ class Translator:
         device = self._resolve_device()
         self._model = AutoModelForSeq2SeqLM.from_pretrained(mid).to(device)
         log.info("NLLB ready on %s.", device)
-
-    def _load_opus(self) -> None:
-        from transformers import MarianMTModel, MarianTokenizer  # type: ignore
-
-        mid = self._cfg.OPUS_MODEL_ID
-        log.info("Loading opus-mt '%s' (first run downloads ~300 MB)…", mid)
-        self._tokenizer = MarianTokenizer.from_pretrained(mid)
-        device = self._resolve_device()
-        self._model = MarianMTModel.from_pretrained(mid).to(device)
-        log.info("opus-mt ready on %s.", device)
-
-    def initialize(self) -> None:
-        """Load the model (blocking). Call once before serving requests."""
-        if self._cfg.backend == "nllb":
-            self._load_nllb()
-        else:
-            self._load_opus()
 
     # ── Inference ─────────────────────────────────────────────────────────────
 
@@ -112,39 +95,28 @@ class Translator:
         model = self._model
         device = next(model.parameters()).device  # type: ignore
 
-        tok.src_lang = "eng_Latn"  # type: ignore  # transformers 5.x: set attribute, not kwarg
-        inputs = tok(text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)  # type: ignore
+        tok.src_lang = "eng_Latn"  # type: ignore
+        inputs = tok(
+            text, return_tensors="pt", padding=True, truncation=True, max_length=512
+        ).to(device)  # type: ignore
 
         tgt_id = tok.convert_tokens_to_ids("hin_Deva")  # type: ignore
         with torch.no_grad():
-            out = model.generate(**inputs, forced_bos_token_id=tgt_id, max_length=512, num_beams=4, early_stopping=True)  # type: ignore
-        return tok.decode(out[0], skip_special_tokens=True)  # type: ignore
-
-    def _run_opus(self, text: str) -> str:
-        import torch  # type: ignore
-
-        tok = self._tokenizer
-        model = self._model
-        device = next(model.parameters()).device  # type: ignore
-
-        inputs = tok([text], return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)  # type: ignore
-        with torch.no_grad():
-            out = model.generate(**inputs, num_beams=4, early_stopping=True)  # type: ignore
+            out = model.generate(  # type: ignore
+                **inputs,
+                forced_bos_token_id=tgt_id,
+                max_length=512,
+                num_beams=4,
+                early_stopping=True,
+            )
         return tok.decode(out[0], skip_special_tokens=True)  # type: ignore
 
     def _translate_sync(self, english: str, tone: str) -> str:
         effective_tone = tone if self._cfg.tone == "auto" else self._cfg.tone
-
-        if self._cfg.backend == "nllb":
-            # NLLB handles placeholders well → entity protection on
-            guarded, entity_map = protect(english)
-            preprocessed = preprocess(guarded)
-            hindi = self._run_nllb(preprocessed)
-            hindi = restore(hindi, entity_map)
-        else:
-            # opus-mt garbles opaque tokens → skip entity protection
-            hindi = self._run_opus(preprocess(english))
-
+        guarded, entity_map = protect(english)
+        preprocessed = preprocess(guarded)
+        hindi = self._run_nllb(preprocessed)
+        hindi = restore(hindi, entity_map)
         return apply_tone(hindi.strip(), effective_tone)
 
     # ── Public API ────────────────────────────────────────────────────────────
@@ -156,9 +128,12 @@ class Translator:
         result = await loop.run_in_executor(
             self._executor, self._translate_sync, english, tone
         )
-        log.debug("Translate [%s] %.0f ms: %r → %r",
-                  self._cfg.backend, (time.perf_counter() - t0) * 1000,
-                  english[:40], result[:40])
+        log.debug(
+            "NLLB %.0f ms: %r → %r",
+            (time.perf_counter() - t0) * 1000,
+            english[:40],
+            result[:40],
+        )
         return result
 
     def close(self) -> None:

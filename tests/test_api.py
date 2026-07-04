@@ -75,7 +75,7 @@ class _FakeRegistry:
         self._tts_obj = fake_tts
         self._translators: dict[str, object] = {}
         if fake_translator:
-            self._translators = {"nllb": fake_translator, "opus": fake_translator}
+            self._translators = {"nllb": fake_translator}
 
     @property
     def asr(self):
@@ -158,7 +158,6 @@ class TestStatusEndpoint:
         data = r.json()
         assert data["ready"] is True
         assert "nllb" in data["backends"]
-        assert "opus" in data["backends"]
 
     def test_status_not_ready(self, unready_app):
         r = unready_app.get("/api/status")
@@ -213,16 +212,6 @@ class TestTranslateEndpoint:
             assert wf.getnchannels() == 1
             assert wf.getsampwidth() == 2
             assert wf.getnframes() > 0
-
-    def test_opus_backend_reflected_in_response(self, patched_app):
-        client, *_ = patched_app
-        r = client.post("/api/translate", json={
-            "text": "Quick update.",
-            "backend": "opus",
-            "tone": "auto",
-        })
-        assert r.status_code == 200
-        assert r.json()["backend"] == "opus"
 
     def test_503_when_models_not_ready(self, unready_app):
         r = unready_app.post("/api/translate", json={
@@ -373,16 +362,6 @@ class TestRealModelIntegration:
         assert any("\u0900" <= c <= "\u097F" for c in hindi), f"No Devanagari: {hindi!r}"
         assert "Google" in hindi or "Meet" in hindi
 
-    def test_opus_translation_end_to_end(self, live_client):
-        r = live_client.post("/api/translate", json={
-            "text": "Please send me the ETA.",
-            "backend": "opus",
-            "tone": "formal",
-        })
-        assert r.status_code == 200
-        hindi = r.json()["hindi"]
-        assert any("\u0900" <= c <= "\u097F" for c in hindi)
-
     def test_audio_output_is_non_silent(self, live_client):
         r = live_client.post("/api/translate", json={
             "text": "Hello, how are you?",
@@ -402,7 +381,7 @@ class TestRealModelIntegration:
         start = time.perf_counter()
         r = live_client.post("/api/translate", json={
             "text": "Quick test.",
-            "backend": "opus",
+            "backend": "nllb",
             "tone": "auto",
         })
         elapsed = time.perf_counter() - start

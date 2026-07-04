@@ -9,10 +9,9 @@
 #   4. Downloads the spaCy English NER model (en_core_web_sm)
 #   5. Copies .env.example → .env if no .env exists
 #   6. Pre-downloads all ML models to local cache:
-#        • faster-whisper base.en         (~74 MB)
-#        • facebook/nllb-200-distilled-600M (~1.2 GB, primary translator)
-#        • Helsinki-NLP/opus-mt-en-hi     (~300 MB, fast translator)
-#        • piper hi_IN-rohan-medium voice (~63 MB, TTS)
+#        • faster-whisper base.en               (~74 MB)
+#        • facebook/nllb-200-distilled-600M     (~1.2 GB, translator)
+#        • piper hi_IN-rohan-medium voice       (~63 MB, TTS)
 #   7. Starts the FastAPI web server at http://localhost:8000
 #
 # Usage:
@@ -193,17 +192,6 @@ try:
     ok("NLLB-200 ready.")
 except Exception as e:
     warn(f"NLLB-200 download failed: {e}  (server will retry at startup)")
-
-# ── Opus-MT translation model ────────────────────────────────────────────────
-print("  Downloading Helsinki-NLP/opus-mt-en-hi (~300 MB)…")
-try:
-    snapshot_download(
-        repo_id="Helsinki-NLP/opus-mt-en-hi",
-        ignore_patterns=["*.msgpack", "*.h5", "flax_model*", "tf_model*"],
-    )
-    ok("Opus-MT ready.")
-except Exception as e:
-    warn(f"Opus-MT download failed: {e}  (server will retry at startup)")
 
 # ── Piper TTS voice ─────────────────────────────────────────────────────────
 piper_voice = os.getenv("PIPER_VOICE", "hi_IN-rohan-medium")

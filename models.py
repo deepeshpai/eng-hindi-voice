@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 
 class TranslateRequest(BaseModel):
     text: str = Field(..., min_length=1, description="English text to translate")
-    backend: str = Field("nllb", description="Translation backend: 'nllb' or 'opus'")
+    backend: str = Field("nllb", description="Translation backend (only 'nllb' supported)")
     tone: str = Field(
         "auto",
         description="Hindi register: 'formal' (आप), 'casual' (तुम), or 'auto'",

@@ -42,7 +42,7 @@ def _env_bool(key: str, default: bool) -> bool:
 
 # ─── Type aliases ────────────────────────────────────────────────────────────
 
-TranslationBackend = Literal["nllb", "opus"]
+TranslationBackend = Literal["nllb"]
 HindiTone = Literal["formal", "casual", "auto"]
 InferenceDevice = Literal["cpu", "cuda", "auto"]
 
@@ -105,8 +105,8 @@ class ASRConfig:
 
 @dataclass
 class TranslationConfig:
-    # "nllb"  → facebook/nllb-200-distilled-600M  (best quality, ~1.2 GB)
-    # "opus"  → Helsinki-NLP/opus-mt-en-hi         (fastest, ~300 MB)
+    # NLLB-200 — facebook/nllb-200-distilled-600M (~1.2 GB)
+    # Best quality; handles slang, technical text, and mixed register.
     backend: TranslationBackend = field(  # type: ignore[assignment]
         default_factory=lambda: _env("TRANSLATION_BACKEND", "nllb")
     )
@@ -117,13 +117,11 @@ class TranslationConfig:
         default_factory=lambda: _env("HINDI_TONE", "auto")
     )
 
-    # HuggingFace model IDs (not user-facing; driven by `backend`)
     NLLB_MODEL_ID: str = "facebook/nllb-200-distilled-600M"
-    OPUS_MODEL_ID: str = "Helsinki-NLP/opus-mt-en-hi"
 
     @property
     def model_id(self) -> str:
-        return self.NLLB_MODEL_ID if self.backend == "nllb" else self.OPUS_MODEL_ID
+        return self.NLLB_MODEL_ID
 
 
 @dataclass

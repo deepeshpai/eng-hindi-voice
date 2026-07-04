@@ -168,16 +168,11 @@ class ModelRegistry:
         log.info("TTS loaded: piper %s", cfg.tts.voice)
 
     def _load_translators(self, cfg: PipelineConfig, Translator) -> None:
-        for backend in ("opus", "nllb"):
-            try:
-                t_cfg = TranslationConfig()
-                t_cfg.backend = backend  # type: ignore[assignment]
-                t = Translator(t_cfg)
-                t.initialize()
-                self._translators[backend] = t
-                log.info("Translator loaded: %s", backend)
-            except Exception as exc:
-                log.warning("Skipping backend '%s': %s", backend, exc)
+        t_cfg = TranslationConfig()
+        t = Translator(t_cfg)
+        t.initialize()
+        self._translators["nllb"] = t
+        log.info("Translator loaded: NLLB-200")
 
 
 # ── TranslationService ────────────────────────────────────────────────────────

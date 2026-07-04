@@ -9,18 +9,15 @@ description = "Real-time English → Hindi voice translation pipeline (local, op
 requires-python = ">=3.10"
 
 dependencies = [
-    # ── Core audio I/O ─────────────────────────────────────────────────────
-    "sounddevice>=0.4.6",
-    "webrtcvad>=2.0.10",
+    # ── Core ───────────────────────────────────────────────────────────────
     "numpy>=1.24.0",
 
     # ── ASR ────────────────────────────────────────────────────────────────
     "faster-whisper>=1.0.0",
 
-    # ── Translation (HuggingFace, fully local) ─────────────────────────────
+    # ── Translation (NLLB-200, fully local) ────────────────────────────────
     "transformers>=4.40.0",
     "sentencepiece>=0.1.99",   # NLLB-200 tokenizer
-    "sacremoses>=0.1.1",       # MarianMT tokenizer
     "torch>=2.0.0",
 
     # ── Named-entity protection ────────────────────────────────────────────
@@ -59,7 +56,6 @@ spacy-transformers = [
 ]
 
 [project.scripts]
-gnani      = "main:main"
 gnani-web  = "server:app"
 
 [tool.pytest.ini_options]
