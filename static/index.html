@@ -551,10 +551,11 @@ async function transcribeAndFill(audioBlob) {
     if (english.trim()) {
       inputText.value = english;
       updateCharCount();
-      micStatus.textContent = `Transcribed: "${english}"`;
+      micStatus.textContent = '';
       await runTranslation(english);
     } else {
       micStatus.textContent = 'Could not transcribe audio.';
+      setTimeout(() => { micStatus.textContent = ''; }, 3000);
     }
   } catch (err) {
     micStatus.textContent = '';
