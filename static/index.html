@@ -342,24 +342,6 @@
         </button>
       </div>
 
-      <!-- Example sentences -->
-      <div>
-        <div class="panel-title" style="margin-bottom:10px">Examples</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
-            Can we move the Google Meet to 5 PM tomorrow?
-          </button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
-            Please share the ETA for the Asterisk SIP trunk deployment.
-          </button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
-            Hey, wanna grab lunch before the 2 PM standup?
-          </button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;font-size:13px" onclick="setExample(this)">
-            The deadline is ASAP — can you please update the Jira ticket?
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- ── Right: Output panel ───────────────────────────────────── -->
@@ -604,12 +586,6 @@ inputText.addEventListener('input', updateCharCount);
 
 function updateCharCount() {
   charCount.textContent = inputText.value.length;
-}
-
-function setExample(btn) {
-  inputText.value = btn.textContent.trim();
-  updateCharCount();
-  inputText.focus();
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
